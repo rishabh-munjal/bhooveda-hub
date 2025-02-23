@@ -18,6 +18,7 @@ const SearchBar = () => {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('Searching for:', query); // Debug log
 
     try {
       const { data: addresses, error } = await supabase
@@ -26,10 +27,16 @@ const SearchBar = () => {
           *,
           building_restrictions (*),
           land_costs (*),
-          zoning_info!inner (*),
+          zoning_info (*),
           future_price_projections (*)
         `)
-        .or(`street.ilike.%${query}%,city.ilike.%${query}%,state.ilike.%${query}%,postal_code.ilike.%${query}%`);
+        .or(`street.ilike.%${query}%`)
+        .or(`city.ilike.%${query}%`)
+        .or(`state.ilike.%${query}%`)
+        .or(`postal_code.ilike.%${query}%`);
+
+      console.log('Search results:', addresses); // Debug log
+      console.log('Search error:', error); // Debug log
 
       if (error) {
         console.error('Search error:', error);
@@ -38,7 +45,7 @@ const SearchBar = () => {
 
       setSearchResults(addresses || []);
       
-      if (addresses?.length === 0) {
+      if (!addresses || addresses.length === 0) {
         toast({
           title: "No results found",
           description: "Try searching with a different term",
