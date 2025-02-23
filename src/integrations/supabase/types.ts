@@ -60,6 +60,7 @@ export type Database = {
           postal_code: string | null
           state: string | null
           street: string | null
+          zoning_id: number | null
         }
         Insert: {
           address_id?: number
@@ -69,6 +70,7 @@ export type Database = {
           postal_code?: string | null
           state?: string | null
           street?: string | null
+          zoning_id?: number | null
         }
         Update: {
           address_id?: number
@@ -78,8 +80,17 @@ export type Database = {
           postal_code?: string | null
           state?: string | null
           street?: string | null
+          zoning_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "addresses_zoning_id_fkey"
+            columns: ["zoning_id"]
+            isOneToOne: false
+            referencedRelation: "zoning_info"
+            referencedColumns: ["zoning_id"]
+          },
+        ]
       }
       building_restrictions: {
         Row: {
