@@ -20,20 +20,21 @@ const SearchBar = () => {
     setIsLoading(true);
 
     try {
-      // Search in addresses table
       const { data: addresses, error } = await supabase
         .from('addresses')
         .select(`
           *,
           building_restrictions (*),
           land_costs (*),
-          zoning_info (*),
+          zoning_info!inner (*),
           future_price_projections (*)
         `)
-        .ilike('street', `%${query}%`)
-        .or(`city.ilike.%${query}%,state.ilike.%${query}%,postal_code.ilike.%${query}%`);
+        .or(`street.ilike.%${query}%,city.ilike.%${query}%,state.ilike.%${query}%,postal_code.ilike.%${query}%`);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Search error:', error);
+        throw error;
+      }
 
       setSearchResults(addresses || []);
       
@@ -92,8 +93,10 @@ const SearchBar = () => {
                   {address.building_restrictions?.map((restriction: any) => (
                     <div key={restriction.restriction_id} className="space-y-2">
                       <h4 className="font-semibold">Building Restriction</h4>
-                      <p>{restriction.restriction_type}</p>
-                      <p className="text-sm text-gray-600">{restriction.notes}</p>
+                      <p>{restriction.restriction_type}: {restriction.restriction_value}</p>
+                      {restriction.notes && (
+                        <p className="text-sm text-gray-600">{restriction.notes}</p>
+                      )}
                     </div>
                   ))}
                   
@@ -101,8 +104,12 @@ const SearchBar = () => {
                     <div className="space-y-2">
                       <h4 className="font-semibold">Zoning Information</h4>
                       <p>Zone: {address.zoning_info.zone_name}</p>
-                      <p>Max Height: {address.zoning_info.max_building_height}ft</p>
-                      <p>Density Limit: {address.zoning_info.density_limit}</p>
+                      {address.zoning_info.max_building_height && (
+                        <p>Max Height: {address.zoning_info.max_building_height}ft</p>
+                      )}
+                      {address.zoning_info.density_limit && (
+                        <p>Density Limit: {address.zoning_info.density_limit}</p>
+                      )}
                     </div>
                   )}
                   
@@ -110,19 +117,23 @@ const SearchBar = () => {
                     <div key={cost.cost_id} className="space-y-2">
                       <h4 className="font-semibold">Land Cost</h4>
                       <p>Cost per sqft: ${cost.estimated_cost_per_sqft}</p>
-                      <p className="text-sm text-gray-600">
-                        Estimated on: {new Date(cost.date_of_estimation).toLocaleDateString()}
-                      </p>
+                      {cost.date_of_estimation && (
+                        <p className="text-sm text-gray-600">
+                          Estimated on: {new Date(cost.date_of_estimation).toLocaleDateString()}
+                        </p>
+                      )}
                     </div>
                   ))}
                   
                   {address.future_price_projections?.map((projection: any) => (
                     <div key={projection.projection_id} className="space-y-2">
                       <h4 className="font-semibold">Price Projection</h4>
-                      <p>Increase: {projection.projected_increase_percentage}%</p>
-                      <p className="text-sm text-gray-600">
-                        {projection.analysis_details}
-                      </p>
+                      <p>Projected Increase: {projection.projected_increase_percentage}%</p>
+                      {projection.analysis_details && (
+                        <p className="text-sm text-gray-600">
+                          {projection.analysis_details}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
