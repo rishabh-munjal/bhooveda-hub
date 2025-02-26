@@ -1,5 +1,6 @@
 
 import Hero from '../components/Hero';
+import SearchBar from '../components/SearchBar';
 
 const Index = () => {
   return (
@@ -21,6 +22,12 @@ const Index = () => {
       </nav>
       <main className="pt-24">
         <Hero />
+        <section className="py-16 px-4">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-8">Find Property Information</h2>
+            <SearchBar />
+          </div>
+        </section>
       </main>
     </div>
   );
