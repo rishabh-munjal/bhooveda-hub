@@ -1,6 +1,8 @@
 
 import Hero from '../components/Hero';
 import SearchBar from '../components/SearchBar';
+import WebScraper from '../components/WebScraper';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   return (
@@ -24,8 +26,22 @@ const Index = () => {
         <Hero />
         <section className="py-16 px-4">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8">Find Property Information</h2>
-            <SearchBar />
+            <h2 className="text-3xl font-bold text-center mb-8">Property Information Tools</h2>
+            
+            <Tabs defaultValue="search" className="max-w-4xl mx-auto">
+              <TabsList className="grid w-full grid-cols-2 mb-8">
+                <TabsTrigger value="search">Search Properties</TabsTrigger>
+                <TabsTrigger value="scraper">Web Scraper</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="search">
+                <SearchBar />
+              </TabsContent>
+              
+              <TabsContent value="scraper">
+                <WebScraper />
+              </TabsContent>
+            </Tabs>
           </div>
         </section>
       </main>

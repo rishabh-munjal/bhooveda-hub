@@ -1,1 +1,5 @@
+
 project_id = "ydbfuilqiyehzvkyobwh"
+
+[functions.scraper]
+verify_jwt = true
