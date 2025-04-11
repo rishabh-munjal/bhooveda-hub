@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Building, DollarSign, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import PropertyCharts from "./PropertyCharts";
 
 type SearchResult = {
   address_id: number;
@@ -135,28 +136,31 @@ const SearchBar = () => {
       </form>
 
       {searchResults.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {searchResults.map((address) => (
-            <Card key={address.address_id} className="overflow-hidden hover:shadow-md transition-shadow duration-200">
+            <Card 
+              key={address.address_id} 
+              className="overflow-hidden hover:shadow-md transition-shadow duration-200 border-t-4 border-t-primary"
+            >
               <CardHeader className="bg-gray-50 pb-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-xl">
                       <MapPin className="h-5 w-5 text-primary" />
                       {address.street}
                     </CardTitle>
-                    <CardDescription className="mt-1">
+                    <CardDescription className="mt-1 text-base">
                       {address.city}, {address.state} {address.postal_code}
                     </CardDescription>
                   </div>
                   {address.zoning_info && (
-                    <Badge variant="outline" className="bg-primary/10">
+                    <Badge variant="outline" className="bg-primary/10 text-primary font-medium">
                       {address.zoning_info.zone_name}
                     </Badge>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="pt-4">
+              <CardContent className="pt-4 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Building Restrictions Summary */}
                   {address.building_restrictions && address.building_restrictions.length > 0 && (
@@ -211,121 +215,129 @@ const SearchBar = () => {
                   )}
                 </div>
                 
-                {/* Expanded card details */}
+                {/* Visual Charts */}
                 {expandedCards.includes(address.address_id) && (
-                  <div className="mt-6 pt-4 border-t border-gray-100">
-                    <div className="grid grid-cols-1 gap-6">
-                      {/* Building Restrictions Details */}
-                      {address.building_restrictions && address.building_restrictions.length > 0 && (
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2 flex items-center">
-                            <Building className="h-4 w-4 text-orange-500 mr-2" />
-                            Building Restrictions
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {address.building_restrictions.map((restriction: any) => (
-                              <div key={restriction.restriction_id} className="bg-gray-50 p-3 rounded-md">
-                                <p className="font-medium text-sm">{restriction.restriction_type}</p>
-                                <p className="text-sm">{restriction.restriction_value}</p>
-                                {restriction.notes && (
-                                  <p className="text-xs text-gray-600 mt-1">{restriction.notes}</p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Zoning Information Details */}
-                      {address.zoning_info && (
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2 flex items-center">
-                            <Building className="h-4 w-4 text-blue-500 mr-2" />
-                            Zoning Information
-                          </h4>
-                          <div className="bg-gray-50 p-3 rounded-md">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
-                              <p className="text-sm"><span className="font-medium">Zone:</span> {address.zoning_info.zone_name}</p>
-                              {address.zoning_info.max_building_height && (
-                                <p className="text-sm"><span className="font-medium">Max Height:</span> {address.zoning_info.max_building_height}ft</p>
-                              )}
-                              {address.zoning_info.density_limit && (
-                                <p className="text-sm"><span className="font-medium">Density Limit:</span> {address.zoning_info.density_limit}</p>
-                              )}
-                              {address.zoning_info.min_front_setback && (
-                                <p className="text-sm"><span className="font-medium">Front Setback:</span> {address.zoning_info.min_front_setback}ft</p>
-                              )}
-                              {address.zoning_info.permitted_land_uses && (
-                                <p className="text-sm col-span-2"><span className="font-medium">Permitted Uses:</span> {address.zoning_info.permitted_land_uses}</p>
-                              )}
-                              {address.zoning_info.effective_date && (
-                                <p className="text-sm"><span className="font-medium">Effective Date:</span> {formatDate(address.zoning_info.effective_date)}</p>
-                              )}
+                  <>
+                    <PropertyCharts 
+                      zoningInfo={address.zoning_info}
+                      landCosts={address.land_costs}
+                      priceProjections={address.future_price_projections}
+                    />
+                    
+                    <div className="mt-6 pt-4 border-t border-gray-100">
+                      <div className="grid grid-cols-1 gap-6">
+                        {/* Building Restrictions Details */}
+                        {address.building_restrictions && address.building_restrictions.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center">
+                              <Building className="h-4 w-4 text-orange-500 mr-2" />
+                              Building Restrictions
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {address.building_restrictions.map((restriction: any) => (
+                                <div key={restriction.restriction_id} className="bg-gray-50 p-3 rounded-md">
+                                  <p className="font-medium text-sm">{restriction.restriction_type}</p>
+                                  <p className="text-sm">{restriction.restriction_value}</p>
+                                  {restriction.notes && (
+                                    <p className="text-xs text-gray-600 mt-1">{restriction.notes}</p>
+                                  )}
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        </div>
-                      )}
-                      
-                      {/* Land Costs Details */}
-                      {address.land_costs && address.land_costs.length > 0 && (
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2 flex items-center">
-                            <DollarSign className="h-4 w-4 text-green-500 mr-2" />
-                            Land Costs
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {address.land_costs.map((cost: any) => (
-                              <div key={cost.cost_id} className="bg-gray-50 p-3 rounded-md">
-                                <p className="text-sm"><span className="font-medium">Cost per sqft:</span> ${cost.estimated_cost_per_sqft}</p>
-                                <p className="text-sm"><span className="font-medium">Data Source:</span> {cost.data_source}</p>
-                                {cost.date_of_estimation && (
-                                  <p className="text-sm">
-                                    <span className="font-medium">Estimated on:</span> {formatDate(cost.date_of_estimation)}
-                                  </p>
+                        )}
+                        
+                        {/* Zoning Information Details */}
+                        {address.zoning_info && (
+                          <div>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center">
+                              <Building className="h-4 w-4 text-blue-500 mr-2" />
+                              Zoning Information
+                            </h4>
+                            <div className="bg-gray-50 p-3 rounded-md">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+                                <p className="text-sm"><span className="font-medium">Zone:</span> {address.zoning_info.zone_name}</p>
+                                {address.zoning_info.max_building_height && (
+                                  <p className="text-sm"><span className="font-medium">Max Height:</span> {address.zoning_info.max_building_height}ft</p>
+                                )}
+                                {address.zoning_info.density_limit && (
+                                  <p className="text-sm"><span className="font-medium">Density Limit:</span> {address.zoning_info.density_limit}</p>
+                                )}
+                                {address.zoning_info.min_front_setback && (
+                                  <p className="text-sm"><span className="font-medium">Front Setback:</span> {address.zoning_info.min_front_setback}ft</p>
+                                )}
+                                {address.zoning_info.permitted_land_uses && (
+                                  <p className="text-sm col-span-2"><span className="font-medium">Permitted Uses:</span> {address.zoning_info.permitted_land_uses}</p>
+                                )}
+                                {address.zoning_info.effective_date && (
+                                  <p className="text-sm"><span className="font-medium">Effective Date:</span> {formatDate(address.zoning_info.effective_date)}</p>
                                 )}
                               </div>
-                            ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      
-                      {/* Price Projections Details */}
-                      {address.future_price_projections && address.future_price_projections.length > 0 && (
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2 flex items-center">
-                            <TrendingUp className="h-4 w-4 text-purple-500 mr-2" />
-                            Price Projections
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {address.future_price_projections.map((projection: any) => (
-                              <div key={projection.projection_id} className="bg-gray-50 p-3 rounded-md">
-                                <p className="text-sm">
-                                  <span className="font-medium">Projected Increase:</span> {projection.projected_increase_percentage}%
-                                </p>
-                                {projection.projection_date && (
+                        )}
+                        
+                        {/* Land Costs Details */}
+                        {address.land_costs && address.land_costs.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center">
+                              <DollarSign className="h-4 w-4 text-green-500 mr-2" />
+                              Land Costs
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {address.land_costs.map((cost: any) => (
+                                <div key={cost.cost_id} className="bg-gray-50 p-3 rounded-md">
+                                  <p className="text-sm"><span className="font-medium">Cost per sqft:</span> ${cost.estimated_cost_per_sqft}</p>
+                                  <p className="text-sm"><span className="font-medium">Data Source:</span> {cost.data_source}</p>
+                                  {cost.date_of_estimation && (
+                                    <p className="text-sm">
+                                      <span className="font-medium">Estimated on:</span> {formatDate(cost.date_of_estimation)}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Price Projections Details */}
+                        {address.future_price_projections && address.future_price_projections.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center">
+                              <TrendingUp className="h-4 w-4 text-purple-500 mr-2" />
+                              Price Projections
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {address.future_price_projections.map((projection: any) => (
+                                <div key={projection.projection_id} className="bg-gray-50 p-3 rounded-md">
                                   <p className="text-sm">
-                                    <span className="font-medium">As of:</span> {formatDate(projection.projection_date)}
+                                    <span className="font-medium">Projected Increase:</span> {projection.projected_increase_percentage}%
                                   </p>
-                                )}
-                                {projection.analysis_details && (
-                                  <p className="text-xs text-gray-600 mt-1">{projection.analysis_details}</p>
-                                )}
-                              </div>
-                            ))}
+                                  {projection.projection_date && (
+                                    <p className="text-sm">
+                                      <span className="font-medium">As of:</span> {formatDate(projection.projection_date)}
+                                    </p>
+                                  )}
+                                  {projection.analysis_details && (
+                                    <p className="text-xs text-gray-600 mt-1">{projection.analysis_details}</p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  </>
                 )}
               </CardContent>
-              <CardFooter className="pt-0 flex justify-center">
+              <CardFooter className="pt-0 flex justify-center bg-white">
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   onClick={() => toggleCardExpansion(address.address_id)}
-                  className="text-sm hover:bg-gray-100"
+                  className="text-sm hover:bg-gray-100 border-primary text-primary hover:text-primary"
                 >
-                  {expandedCards.includes(address.address_id) ? "Show Less" : "Show More"}
+                  {expandedCards.includes(address.address_id) ? "Show Less" : "Show Charts & Details"}
                 </Button>
               </CardFooter>
             </Card>
