@@ -2,6 +2,7 @@
 import Hero from '../components/Hero';
 import SearchBar from '../components/SearchBar';
 import WebScraper from '../components/WebScraper';
+import ContributeForm from '../components/ContributeForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
@@ -29,9 +30,10 @@ const Index = () => {
             <h2 className="text-3xl font-bold text-center mb-8">Property Information Tools</h2>
             
             <Tabs defaultValue="search" className="max-w-4xl mx-auto">
-              <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsList className="grid w-full grid-cols-3 mb-8">
                 <TabsTrigger value="search">Search Properties</TabsTrigger>
                 <TabsTrigger value="scraper">Web Scraper</TabsTrigger>
+                <TabsTrigger value="contribute">Contribute Data</TabsTrigger>
               </TabsList>
               
               <TabsContent value="search">
@@ -40,6 +42,10 @@ const Index = () => {
               
               <TabsContent value="scraper">
                 <WebScraper />
+              </TabsContent>
+              
+              <TabsContent value="contribute">
+                <ContributeForm />
               </TabsContent>
             </Tabs>
           </div>
